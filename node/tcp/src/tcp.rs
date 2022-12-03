@@ -397,8 +397,14 @@ impl Tcp {
     fn can_add_connection(&self) -> bool {
         let num_connected = self.num_connected();
         let limit = self.config.max_connections as usize;
-        if num_connected >= limit || num_connected + self.num_connecting() >= limit {
-            warn!(parent: self.span(), "maximum number of connections ({}) reached", limit);
+
+        trace!("TEMPORARY - num_connected: {}, limit: {}\n{:?}", num_connected, limit, self.connecting.lock().clone());
+
+        if num_connected >= limit {
+            warn!(parent: self.span(), "maximum number of active connections ({}) reached", limit);
+            false
+        } else if num_connected + self.num_connecting() >= limit {
+            warn!(parent: self.span(), "maximum number of pending connections ({}) reached", limit);
             false
         } else {
             true
