@@ -398,7 +398,13 @@ impl Tcp {
         let num_connected = self.num_connected();
         let limit = self.config.max_connections as usize;
 
-        trace!("TEMPORARY - num_connected: {}, limit: {}\n{:?}", num_connected, limit, self.connecting.lock().clone());
+        trace!(
+            "TEMPORARY - num_connected: {}, limit: {}\nActive: {:?}\nPending: {:?}",
+            num_connected,
+            limit,
+            self.connections.addrs(),
+            self.connecting.lock().clone()
+        );
 
         if num_connected >= limit {
             warn!(parent: self.span(), "maximum number of active connections ({}) reached", limit);
