@@ -367,6 +367,11 @@ impl Tcp {
         self.connections.addrs()
     }
 
+    /// Returns a list containing addresses of pending connections.
+    pub fn connecting_addrs(&self) -> Vec<SocketAddr> {
+        self.connecting.lock().iter().copied().collect()
+    }
+
     /// Returns a reference to the collection of statistics of Tcp's known peers.
     #[inline]
     pub fn known_peers(&self) -> &KnownPeers {

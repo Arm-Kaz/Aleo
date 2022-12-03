@@ -85,6 +85,12 @@ pub trait Heartbeat<N: Network>: Outbound<N> {
             1 => debug!("Connected to 1 peer: {connected_peers_fmt}"),
             num_connected => debug!("Connected to {num_connected} peers {connected_peers_fmt}"),
         }
+        // TODO (howardwu): TMP - Remove this once the node is stable.
+        trace!(
+            "\nActive - {:?}\nPending - {:?}",
+            self.router().tcp.connected_addrs(),
+            self.router().tcp.connecting_addrs()
+        );
     }
 
     /// This function removes any connected peers that have not communicated within the predefined time.
