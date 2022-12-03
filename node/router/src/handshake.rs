@@ -176,11 +176,6 @@ impl<N: Network> Router<N> {
             bail!("Dropping connection request from '{peer_ip}' (restricted)")
         }
 
-        // TODO (howardwu): TMP - Remove this restriction once the network is more stable.
-        if self.node_type.is_beacon() {
-            return Ok(());
-        }
-
         // Ensure the peer is not spamming connection attempts.
         if !peer_ip.ip().is_loopback() {
             // Add this connection attempt and retrieve the number of attempts.
