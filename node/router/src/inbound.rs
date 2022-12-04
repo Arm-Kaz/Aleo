@@ -296,10 +296,17 @@ pub trait Inbound<N: Network>: Reading + Outbound<N> {
 
     /// Handles a `PeerRequest` message.
     fn peer_request(&self, peer_ip: SocketAddr) -> bool {
-        // Retrieve the connected peers.
-        let peers = self.router().connected_peers();
+        // Retrieve the connected validators.
+        let peers = self.router().connected_validators();
         // Send a `PeerResponse` message to the peer.
         self.send(peer_ip, Message::PeerResponse(PeerResponse { peers }));
+
+        if let Some(peer) = self.router().get_connected_peer(&peer_ip) {
+            if peer.is_prover() {
+                return false;
+            }
+        }
+
         true
     }
 
