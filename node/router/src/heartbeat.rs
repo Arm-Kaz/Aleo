@@ -150,6 +150,17 @@ pub trait Heartbeat<N: Network>: Outbound<N> {
         // Compute the number of deficit peers.
         let num_deficient = Self::MEDIAN_NUMBER_OF_PEERS.saturating_sub(num_connected);
 
+        if self.router().node_type().is_validator() {
+            for peer in self.router().get_connected_peers() {
+                if peer.node_type().is_prover() && peer.first_seen().elapsed().as_secs() > 120 {
+                    info!("Disconnecting from '{}' (prover)", peer.ip());
+                    let _ = self.send(peer.ip(), Message::Disconnect(DisconnectReason::PeerRefresh.into()));
+                    // Disconnect from this peer.
+                    self.router().disconnect(peer.ip());
+                }
+            }
+        }
+
         if num_surplus > 0 {
             debug!("Exceeded maximum number of connected peers, disconnecting from {num_surplus} peers");
 
