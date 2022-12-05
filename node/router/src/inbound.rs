@@ -344,6 +344,11 @@ pub trait Inbound<N: Network>: Reading + Outbound<N> {
             }
         }
 
+        // Retrieve the connected validators.
+        let peers = self.router().connected_validators();
+        // Send a `PeerResponse` message to the peer.
+        self.send(peer_ip, Message::PeerResponse(PeerResponse { peers }));
+
         // Update the connected peer.
         if let Err(error) = self.router().update_connected_peer(peer_ip, message.node_type, |peer: &mut Peer<N>| {
             // Update the version of the peer.
@@ -356,11 +361,6 @@ pub trait Inbound<N: Network>: Reading + Outbound<N> {
             warn!("[Ping] {error}");
             return false;
         }
-
-        // Retrieve the connected validators.
-        let peers = self.router().connected_validators();
-        // Send a `PeerResponse` message to the peer.
-        self.send(peer_ip, Message::PeerResponse(PeerResponse { peers }));
 
         if let Some(peer) = self.router().get_connected_peer(&peer_ip) {
             if peer.is_prover() {
