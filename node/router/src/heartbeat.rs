@@ -95,6 +95,21 @@ pub trait Heartbeat<N: Network>: Outbound<N> {
 
     /// This function removes any connected peers that have not communicated within the predefined time.
     fn remove_stale_connected_peers(&self) {
+        // TODO (howardwu): TMP - Remove this once things stabilize.
+        let tcp_peers = self.router().tcp.connected_addrs();
+        let connected_peers = self.router().connected_peers();
+        for peer_ip in connected_peers {
+            let peer_addr = match self.router().resolve_to_ambiguous(&peer_ip) {
+                Some(peer_addr) => peer_addr,
+                None => peer_ip,
+            };
+
+            if !tcp_peers.contains(&peer_ip) && !tcp_peers.contains(&peer_addr) {
+                warn!("Removing stale peer: {:?}", peer_ip);
+                self.router().disconnect(peer_ip);
+            }
+        }
+
         // Check if any connected peer is stale.
         for peer in self.router().get_connected_peers() {
             // Disconnect if the peer has not communicated back within the predefined time.

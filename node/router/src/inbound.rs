@@ -364,7 +364,8 @@ pub trait Inbound<N: Network>: Reading + Outbound<N> {
 
         if let Some(peer) = self.router().get_connected_peer(&peer_ip) {
             if peer.is_prover() {
-                return false;
+                // Flip a coin and return true or false.
+                return rand::random();
             }
         }
 
